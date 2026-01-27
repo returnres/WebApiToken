@@ -8,9 +8,38 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// DB
+// --------------------
+// CONFIGURATION
+// --------------------
+
+string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// Se NON esiste la connection string (produzione / Render)
+if (string.IsNullOrEmpty(connectionString))
+{
+    var databaseUrl = builder.Configuration["DATABASE_URL"];
+
+    if (string.IsNullOrEmpty(databaseUrl))
+        throw new InvalidOperationException("DATABASE_URL non configurata");
+
+    var uri = new Uri(databaseUrl);
+    var userInfo = uri.UserInfo.Split(':');
+
+     var port = uri.Port > 0 ? uri.Port : 5432; // default PostgreSQL
+
+            connectionString =
+                $"Host={uri.Host};" +
+                $"Port={port};" +
+                $"Database={uri.AbsolutePath.TrimStart('/')};" +
+                $"Username={userInfo[0]};" +
+                $"Password={userInfo[1]};" +
+                $"Ssl Mode=Require;Trust Server Certificate=true";
+}
+
+//  DB CONTEXT
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
+
 
 // Identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
@@ -40,7 +69,6 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
 
 builder.Services.AddSwaggerGen(c =>
 {
