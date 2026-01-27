@@ -106,6 +106,8 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+Console.WriteLine($"JWT ISSUER: {builder.Configuration["Jwt:Issuer"]}");
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
