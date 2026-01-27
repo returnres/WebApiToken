@@ -1,28 +1,27 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[Authorize]
 [ApiController]
-[Route("api/secure")]
+[Route("api/secure")] // forziamo il controller name minuscolo
 public class SecureController : ControllerBase
 {
-    [HttpGet]
-    public IActionResult Get()
+    [Authorize]
+    [HttpGet("secure")] // /api/secure/secure
+    public IActionResult GetSecure()
     {
-        return Ok("Accesso con Identity + JWT riuscito 🚀");
+        return Ok(new { message = "Accesso autorizzato!" });
     }
 
+    [HttpGet("public")]
+    public IActionResult GetPublic()
+    {
+        return Ok(new { message = "Endpoint pubblico" });
+    }
 
-
-  [HttpGet("me")]
-  public IActionResult Me()
-   {
-      return Ok(new
-      {
-        User.Identity?.Name,
-        Claims = User.Claims.Select(c => new { c.Type, c.Value })
-     });
-   }
-
+    [AllowAnonymous]
+[HttpGet("ping")]
+public IActionResult Ping()
+{
+    return Ok("pong");
 }
-
+}
