@@ -1,0 +1,40 @@
+name: Build .NET 8 Project
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2️⃣ Setup .NET 8 SDK
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      # 3️⃣ Controlla la struttura dei file (debug)
+      - name: Show repo structure
+        run: ls -R
+
+      # 4️⃣ Restore dependencies
+      - name: Restore dependencies
+        run: dotnet restore ./ApiJwtNet8/ApiJwtNet8.sln
+
+      # 5️⃣ Build in Release
+      - name: Build project
+        run: dotnet build --configuration Release ./ApiJwtNet8/ApiJwtNet8.sln
+
+      # 6️⃣ Run tests (opzionale)
+      - name: Run tests
+        run: dotnet test ./ApiJwtNet8/ApiJwtNet8.sln --no-build --verbosity normal
