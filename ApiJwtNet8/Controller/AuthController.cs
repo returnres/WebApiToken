@@ -31,12 +31,12 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(string email, string password)
-    {
-        var user = await _userManager.FindByEmailAsync(email);
+     public async Task<IActionResult> Login([FromBody] LoginRequest request)
+{
+        var user = await _userManager.FindByEmailAsync(request.Email);
         if (user == null) return Unauthorized();
 
-        var valid = await _userManager.CheckPasswordAsync(user, password);
+        var valid = await _userManager.CheckPasswordAsync(user, request.Password);
         if (!valid) return Unauthorized();
 
         var token = GenerateToken(user);
@@ -68,4 +68,10 @@ public class AuthController : ControllerBase
 
     return new JwtSecurityTokenHandler().WriteToken(token);
 }
+}
+
+public class LoginRequest
+{
+    public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
 }
