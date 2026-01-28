@@ -100,6 +100,19 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorClient", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:5053",          //  locale
+                "https://blazorjwtclient.onrender.com" //  prod 
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 
 var app = builder.Build();
@@ -108,6 +121,8 @@ Console.WriteLine($"JWT ISSUER: {builder.Configuration["Jwt:Issuer"]}");
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+app.UseCors("AllowBlazorClient");
 
 app.UseAuthentication();
 app.UseAuthorization();
